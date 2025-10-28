@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">\r
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌳 Gerenciador de Árvores B e B+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 45%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.6rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+            min-height: calc(100vh - 160px);
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 18px;
+            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.25);
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .content {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 18px;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section {
+            margin-bottom: 28px;
+        }
+
+        .section h3 {
+            color: #4c51bf;
+            margin-bottom: 16px;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section h3 span {
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #4c51bf 0%, #805ad5 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+        }
+
+        .config-card {
+            background: #edf2f7;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .config-card label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .config-card select, .config-card input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #cbd5f5;
+            font-size: 15px;
+            transition: border-color 0.2s ease;
+        }
+
+        .config-card select:focus, .config-card input:focus {
+            outline: none;
+            border-color: #805ad5;
+        }
+
+        .output-area {
+            flex: 1;
+            background: #0f172a;
+            border-radius: 14px;
+            padding: 22px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e2e8f0;
+            border: 1px solid #1e293b;
+        }
+
+        .output-area pre {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #27364d;
+            color: #fbd38d;
+            white-space: pre-wrap;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            background: #1e293b;
+            color: white;
+            border-radius: 12px;
+            margin-top: 18px;
+            font-size: 0.95rem;
+        }
+
+        .status-bar span strong {
+            color: #63b3ed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #1a202c;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4c51bf;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alerts {
+            min-height: 40px;
+        }
+
+        .alert {
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            border: 1px solid #68d391;
+            color: #22543d;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            border: 1px solid #f56565;
+            color: #822727;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 6% auto;
+            padding: 30px;
+            border-radius: 18px;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.35);
+            position: relative;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #4c51bf;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #cbd5f5;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4c51bf;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            color: #a0aec0;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #2d3748;
+        }
+
+        .metadata {
+            margin: 16px 0;
+            padding: 12px 16px;
+            background: rgba(76, 81, 191, 0.08);
+            border-left: 4px solid #805ad5;
+            border-radius: 10px;
+            color: #2d3748;
+        }
+
+        .metadata strong {
+            color: #4c51bf;
+        }
+
+        @media (max-width: 960px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .sidebar {
+                order: 2;
+            }
+
+            .content {
+                order: 1;
+                min-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌳 Gerenciador Interativo de Árvores B e B+</h1>
+            <p>Visualize, manipule e acompanhe suas árvores balanceadas em tempo real</p>
+        </div>
+
+        <div class="main-grid">
+            <div class="sidebar">
+                <div class="config-card">
+                    <label for="treeType">Tipo de árvore</label>
+                    <select id="treeType">
+                        <option value="b">Árvore B</option>
+                        <option value="bplus">Árvore B+</option>
+                    </select>
+                </div>
+
+                <div class="section">
+                    <h3><span>⚙️</span>Configuração</h3>
+                    <button class="btn" onclick="abrirModalCriar()">🛠️ Criar / Resetar Árvore</button>
+                    <button class="btn btn-warning" onclick="mostrarEstrutura()">🌳 Mostrar Estrutura</button>
+                    <button class="btn" onclick="mostrarFolhas()">🍃 Folhas</button>
+                </div>
+
+                <div class="section">
+                    <h3><span>➕</span>Operações</h3>
+                    <button class="btn btn-success" onclick="abrirModalValor('insert')">➕ Inserir Valor</button>
+                    <button class="btn btn-info" onclick="abrirModalValor('search')">🔍 Buscar Valor</button>
+                    <button class="btn btn-danger" onclick="abrirModalValor('delete')">🗑️ Excluir Valor</button>
+                </div>
+
+                <div class="section">
+                    <h3><span>🧾</span>Histórico</h3>
+                    <button class="btn" onclick="mostrarHistorico()">📜 Ver Histórico</button>
+                    <button class="btn btn-danger" onclick="limparHistorico()">🧹 Limpar Histórico</button>
+                </div>
+
+                <div class="section">
+                    <h3><span>📤</span>Utilidades</h3>
+                    <button class="btn" onclick="exportarJSON()">💾 Exportar JSON</button>
+                    <button class="btn" onclick="limparTela()">🧼 Limpar Console</button>
+                </div>
+            </div>
+
+            <div class="content">
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Processando operação...</p>
+                </div>
+
+                <div id="alerts" class="alerts"></div>
+
+                <div class="metadata" id="metadata">
+                    <strong>Árvore atual:</strong> <span id="metadataLabel">Árvore B</span><br>
+                    <strong>Status:</strong> <span id="metadataStatus">Não criada</span>
+                </div>
+
+                <div class="output-area" id="output">
+                    <div style="text-align: center; color: #718096; margin: 60px 0;">
+                        <h2>Bem-vindo!</h2>
+                        <p>Selecione o tipo de árvore, clique em "Criar / Resetar Árvore" e comece os testes.</p>
+                        <p>A saída detalhada aparecerá aqui no console interativo.</p>
+                    </div>
+                </div>
+
+                <div class="status-bar">
+                    <span id="status">Pronto</span>
+                    <span id="infoArvore">Árvore B · Ordem —</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Criar -->
+    <div id="modalCriar" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('modalCriar')">&times;</span>
+            <h2>🛠️ Criar / Resetar Árvore</h2>
+            <form id="formCriar">
+                <div class="form-group">
+                    <label for="ordem">Ordem da árvore (mínimo 3)</label>
+                    <input type="number" id="ordem" name="ordem" min="3" value="3" required>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-success">✅ Confirmar</button>
+                    <button type="button" class="btn" onclick="fecharModal('modalCriar')">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Operações de Valor -->
+    <div id="modalValor" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('modalValor')">&times;</span>
+            <h2 id="modalValorTitulo">Operação</h2>
+            <form id="formValor">
+                <div class="form-group">
+                    <label id="labelValor" for="valorInput">Valor inteiro</label>
+                    <input type="number" id="valorInput" name="valorInput" required>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-success">✅ Executar</button>
+                    <button type="button" class="btn" onclick="fecharModal('modalValor')">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/tree';
+        const treeState = {
+            b: { created: false, order: null },
+            bplus: { created: false, order: null }
+        };
+        let currentTree = 'b';
+        let currentAction = null;
+
+        const treeSelect = document.getElementById('treeType');
+        const output = document.getElementById('output');
+        const statusLabel = document.getElementById('status');
+        const infoLabel = document.getElementById('infoArvore');
+        const metadataLabel = document.getElementById('metadataLabel');
+        const metadataStatus = document.getElementById('metadataStatus');
+        const alertsDiv = document.getElementById('alerts');
+
+        treeSelect.addEventListener('change', () => {
+            currentTree = treeSelect.value;
+            atualizarMetadata();
+            showAlert(`Você selecionou ${descricaoArvore()}.`, 'success');
+        });
+
+        function descricaoArvore() {
+            return currentTree === 'b' ? 'Árvore B' : 'Árvore B+';
+        }
+
+        function showLoading(show = true) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showAlert(message, type = 'success') {
+            const className = type === 'success' ? 'alert-success' : 'alert-error';
+            alertsDiv.innerHTML = `<div class="alert ${className}">${message}</div>`;
+            setTimeout(() => {
+                alertsDiv.innerHTML = '';
+            }, 4000);
+        }
+
+        function escreverSaida(texto) {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = texto;
+            output.appendChild(wrapper);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function limparTela() {
+            output.innerHTML = '';
+            escreverSaida('<div style="color:#718096;">Console limpo.</div>');
+            atualizarStatus('Console limpo');
+        }
+
+        function atualizarStatus(texto) {
+            statusLabel.textContent = texto;
+        }
+
+        function atualizarInfo(order = null) {
+            const ordem = order || treeState[currentTree].order || '—';
+            infoLabel.textContent = `${descricaoArvore()} · Ordem ${ordem}`;
+        }
+
+        function atualizarMetadata() {
+            metadataLabel.textContent = descricaoArvore();
+            const { created, order } = treeState[currentTree];
+            metadataStatus.textContent = created ? `Criada (ordem ${order})` : 'Não criada';
+            atualizarInfo(order);
+        }
+
+        function fecharModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function abrirModalCriar() {
+            document.getElementById('ordem').value = treeState[currentTree].order || 3;
+            document.getElementById('modalCriar').style.display = 'block';
+        }
+
+        function abrirModalValor(action) {
+            if (!treeState[currentTree].created) {
+                showAlert('Crie a árvore antes de executar operações.', 'error');
+                return;
+            }
+            currentAction = action;
+            document.getElementById('valorInput').value = '';
+
+            const titulo = {
+                insert: '➕ Inserir Valor',
+                search: '🔍 Buscar Valor',
+                delete: '🗑️ Excluir Valor'
+            }[action];
+
+            const label = {
+                insert: 'Informe o valor inteiro a ser inserido',
+                search: 'Informe o valor inteiro a ser buscado',
+                delete: 'Informe o valor inteiro a ser excluído'
+            }[action];
+
+            document.getElementById('modalValorTitulo').textContent = titulo;
+            document.getElementById('labelValor').textContent = label;
+            document.getElementById('modalValor').style.display = 'block';
+        }
+
+        document.getElementById('formCriar').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const ordem = parseInt(document.getElementById('ordem').value, 10);
+            if (Number.isNaN(ordem) || ordem < 3) {
+                showAlert('Informe uma ordem válida (mínimo 3).', 'error');
+                return;
+            }
+
+            showLoading(true);
+            fetch(`${API_BASE}/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tree_type: currentTree, order: ordem })
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                if (!data.success) {
+                    throw new Error(data.error || 'Falha ao criar a árvore.');
+                }
+                treeState[currentTree] = { created: true, order: ordem };
+                limparTela();
+                escreverSaida(`<h2 style="color:#63b3ed;">${descricaoArvore()} criada com ordem ${ordem}.</h2>`);
+                atualizarStatus('Árvore criada com sucesso');
+                atualizarMetadata();
+                showAlert(data.message || 'Árvore criada com sucesso!');
+                mostrarEstrutura();
+            })
+            .catch((error) => {
+                showAlert(error.message, 'error');
+                atualizarStatus('Erro ao criar árvore');
+            })
+            .finally(() => {
+                showLoading(false);
+                fecharModal('modalCriar');
+            });
+        });
+
+        document.getElementById('formValor').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const valor = parseInt(document.getElementById('valorInput').value, 10);
+            if (Number.isNaN(valor)) {
+                showAlert('Informe um valor inteiro válido.', 'error');
+                return;
+            }
+
+            if (!currentAction) {
+                showAlert('Ação inválida.', 'error');
+                return;
+            }
+
+            showLoading(true);
+
+            if (currentAction === 'insert') {
+                fetch(`${API_BASE}/${currentTree}/insert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ value: valor })
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (!data.success) {
+                        throw new Error(data.error || 'Erro ao inserir valor.');
+                    }
+                    escreverSaida(`<div style="color:#68d391;">✔ Valor ${valor} inserido.</div>`);
+                    atualizarStatus(`Valor ${valor} inserido`);
+                    showAlert(data.message || 'Valor inserido com sucesso!');
+                    mostrarEstrutura(false);
+                })
+                .catch((error) => {
+                    showAlert(error.message, 'error');
+                    atualizarStatus('Erro na inserção');
+                })
+                .finally(() => {
+                    showLoading(false);
+                    fecharModal('modalValor');
+                });
+            }
+
+            if (currentAction === 'search') {
+                fetch(`${API_BASE}/${currentTree}/search/${valor}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    const encontrado = data.found ? 'foi encontrado ✅' : 'não foi encontrado ❌';
+                    escreverSaida(`<div style="color:#63b3ed;">🔍 Busca por ${valor}: ${encontrado}</div>`);
+                    atualizarStatus(`Busca por ${valor} concluída`);
+                    showAlert(`Resultado: ${encontrado}`);
+                })
+                .catch((error) => {
+                    showAlert(error.message, 'error');
+                    atualizarStatus('Erro na busca');
+                })
+                .finally(() => {
+                    showLoading(false);
+                    fecharModal('modalValor');
+                });
+            }
+
+            if (currentAction === 'delete') {
+                fetch(`${API_BASE}/${currentTree}/value/${valor}`, {
+                    method: 'DELETE'
+                })
+                .then((response) => response.json().then((data) => ({ status: response.status, data })))
+                .then(({ status, data }) => {
+                    if (status >= 400) {
+                        throw new Error(data.error || 'Erro ao excluir valor.');
+                    }
+                    escreverSaida(`<div style="color:#f56565;">🗑️ Valor ${valor} removido.</div>`);
+                    atualizarStatus(`Valor ${valor} removido`);
+                    showAlert(data.message || 'Valor removido com sucesso!');
+                    mostrarEstrutura(false);
+                })
+                .catch((error) => {
+                    showAlert(error.message, 'error');
+                    atualizarStatus('Erro na exclusão');
+                })
+                .finally(() => {
+                    showLoading(false);
+                    fecharModal('modalValor');
+                });
+            }
+        });
+
+        function garantirArvoreCriada() {
+            if (!treeState[currentTree].created) {
+                showAlert('Crie a árvore antes de executar esta ação.', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function mostrarEstrutura(limpar = true) {
+            if (!garantirArvoreCriada()) return;
+            showLoading(true);
+            fetch(`${API_BASE}/${currentTree}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    treeState[currentTree].created = true;
+                    treeState[currentTree].order = data.order;
+                    atualizarMetadata();
+                    if (limpar) {
+                        output.innerHTML = '';
+                    }
+                    escreverSaida(`<h2 style="color:#f6ad55;">${data.label} — Ordem ${data.order}</h2>`);
+                    escreverSaida('<hr style="border-color:#334155; margin:14px 0;">');
+                    escreverSaida(`<pre>${data.string_representation}</pre>`);
+                    if (Array.isArray(data.leaves) && data.leaves.length) {
+                        escreverSaida('<div style="margin-top:14px; color:#cbd5f5;">🍃 Folhas atuais:</div>');
+                        data.leaves.forEach((leaf, index) => {
+                            escreverSaida(`<div style="color:#a0aec0;">${index + 1}. [ ${leaf.join(', ')} ]</div>`);
+                        });
+                    }
+                    atualizarStatus('Estrutura exibida');
+                })
+                .catch((error) => {
+                    showAlert(error.message, 'error');
+                    atualizarStatus('Erro ao obter estrutura');
+                })
+                .finally(() => {
+                    showLoading(false);
+                });
+        }
+
+        function mostrarFolhas() {
+            if (!garantirArvoreCriada()) return;
+            showLoading(true);
+            fetch(`${API_BASE}/${currentTree}/leaves`)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    output.innerHTML = '';
+                    escreverSaida(`<h2 style="color:#9f7aea;">🍃 Folhas da ${descricaoArvore()}</h2>`);
+                    escreverSaida('<hr style="border-color:#334155; margin:14px 0;">');
+                    if (!data.leaves.length) {
+                        escreverSaida('<div style="color:#cbd5f5;">A árvore está vazia.</div>');
+                    } else {
+                        data.leaves.forEach((leaf, idx) => {
+                            escreverSaida(`<div style="color:#fbd38d;">${idx + 1}. [ ${leaf.join(', ')} ]</div>`);
+                        });
+                    }
+                    atualizarStatus('Folhas exibidas');
+                    showAlert('Folhas exibidas com sucesso!');
+                })
+                .catch((error) => {
+                    showAlert(error.message, 'error');
+                    atualizarStatus('Erro ao obter folhas');
+                })
+                .finally(() => showLoading(false));
+        }
+
+        function mostrarHistorico() {
+            if (!garantirArvoreCriada()) return;
+            showLoading(true);
+            fetch(`${API_BASE}/${currentTree}/history`)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    output.innerHTML = '';
+                    escreverSaida(`<h2 style="color:#63b3ed;">📜 Histórico de operações</h2>`);
+                    escreverSaida('<hr style="border-color:#334155; margin:14px 0;">');
+                    if (!data.history.length) {
+                        escreverSaida('<div style="color:#cbd5f5;">Nenhuma operação registrada ainda.</div>');
+                    } else {
+                        data.history.forEach((item, index) => {
+                            escreverSaida(`<div style="color:#e2e8f0;">${index + 1}. ${item}</div>`);
+                        });
+                    }
+                    atualizarStatus('Histórico exibido');
+                })
+                .catch((error) => {
+                    showAlert(error.message, 'error');
+                    atualizarStatus('Erro ao obter histórico');
+                })
+                .finally(() => showLoading(false));
+        }
+
+        function limparHistorico() {
+            if (!garantirArvoreCriada()) return;
+            if (!confirm('Tem certeza que deseja limpar o histórico da árvore atual?')) {
+                return;
+            }
+            showLoading(true);
+            fetch(`${API_BASE}/${currentTree}/history`, { method: 'DELETE' })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (!data.success) {
+                        throw new Error(data.error || 'Erro ao limpar histórico.');
+                    }
+                    showAlert('Histórico limpo com sucesso!');
+                    atualizarStatus('Histórico limpo');
+                    mostrarHistorico();
+                })
+                .catch((error) => {
+                    showAlert(error.message, 'error');
+                    atualizarStatus('Erro ao limpar histórico');
+                })
+                .finally(() => showLoading(false));
+        }
+
+        function exportarJSON() {
+            if (!garantirArvoreCriada()) return;
+            showLoading(true);
+            fetch(`${API_BASE}/${currentTree}/export`)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    const fileName = currentTree === 'b' ? 'arvore_b.json' : 'arvore_bplus.json';
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    showAlert('Estrutura exportada com sucesso!');
+                    atualizarStatus('JSON exportado');
+                })
+                .catch((error) => {
+                    showAlert(error.message, 'error');
+                    atualizarStatus('Erro na exportação');
+                })
+                .finally(() => showLoading(false));
+        }
+
+        window.addEventListener('click', (event) => {
+            ['modalCriar', 'modalValor'].forEach((id) => {
+                const modal = document.getElementById(id);
+                if (event.target === modal) {
+                    fecharModal(id);
+                }
+            });
+        });
+
+        atualizarMetadata();
+    </script>
+</body>
+</html>
