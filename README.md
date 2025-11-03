@@ -63,8 +63,3 @@ python -m unittest discover -s tests -p "test_*.py"
 | Inserção | O(log n)    |
 | Exclusão | O(log n)    |
 | Espaço   | O(n)        |
-
-## Referências
-
-- Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. *Introduction to Algorithms* (3ª edição).
-- Knuth, D. E. *The Art of Computer Programming, Volume 3: Sorting and Searching*.
