@@ -1,65 +1,49 @@
-# Projeto de Árvores B e B+
+# Project Documentation
 
-Este repositório reúne implementações das estruturas **Árvore B** e **Árvore B+** acompanhadas de uma interface de linha de comando, uma aplicação web em Flask e uma suíte de testes automatizados.
+## Badges
+![License](https://img.shields.io/badge/license-MIT-brightgreen)
+![CI](https://img.shields.io/badge/ci-passing-brightgreen)
 
-## Estrutura do repositório
+## Introduction
+This project implements B and B+ trees, which are specialized data structures commonly used in databases and file systems.
 
-- `backend/` – Implementações das árvores (`btree.py`, `bplustree.py`).
-- `cli/` – Interface de linha de comando (`main.py`).
-- `frontend/web_app/` – Aplicação Flask com templates HTML.
-- `tests/` – Testes automatizados para validar o comportamento das árvores.
-- `README.md` – Visão geral e instruções de uso.
+## B and B+ Trees
+### B Tree
+A B Tree is a balanced tree data structure that maintains sorted data and allows searches, sequential access, insertions, and deletions in logarithmic time.
 
-> Observação: Os pacotes ajustam o `sys.path` automaticamente quando executados diretamente, portanto não é necessário instalar o projeto como módulo.
+### B+ Tree
+A B+ Tree is an extension of a B Tree, in which all values are found in the leaf nodes. It is optimized for systems that read and write large blocks of data.
 
-## Dependências
+## Applications in Databases
+- **MySQL**: Uses B+ Trees for indexing data.
+- **PostgreSQL**: Utilizes B Trees and B+ Trees for various indexing strategies.
 
-- Python 3.10+ (desenvolvido com Python 3.12).
-- Flask (somente para a aplicação web). Instalação sugerida:
+## Complexity Analysis
+Both B and B+ trees have a logarithmic time complexity for search operations, which is ideal for large datasets.
 
-```bash
-pip install flask
-```
+## How to Execute Instructions
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Luan-Diniz02/Projeto_Arvore_B_Bplus_Bestrela.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd Projeto_Arvore_B_Bplus_Bestrela
+   ```
+3. Compile and run the project according to the instructions in the **docs** folder.
 
-## Como executar
+## Project Structure
+- **src/**: Contains the source code.
+- **docs/**: Contains documentation and instructions.
+- **tests/**: Contains test cases for various functionalities.
 
-### Linha de comando
+## Comparison between B and B+ Trees
+| Feature             | B Tree      | B+ Tree      |
+|---------------------|-------------|--------------|
+| Leaf Nodes          | Data & Pointers | Only Pointers to Data  |
+| Search Complexity    | O(log n)    | O(log n)      |
+| Space Utilization    | Less efficient | More efficient |
+| Range Queries        | Possible     | More efficient in range queries |
 
-```bash
-python cli/main.py
-```
-
-### Aplicação web
-
-```bash
-python frontend/web_app/arvore_web.py
-```
-
-Depois de iniciar, acesse `http://127.0.0.1:5000/` no navegador.
-
-### Testes automatizados
-
-```bash
-python -m unittest discover -s tests -p "test_*.py"
-```
-
-## Conceitos rápidos
-
-### Árvore B
-- Árvore de busca balanceada com múltiplas chaves por nó.
-- Todos os nós folha ficam no mesmo nível.
-- A altura é mantida pequena graças a divisões (split) e combinações (merge).
-
-### Árvore B+
-- Variação da Árvore B em que todas as chaves residem nas folhas.
-- Nós internos possuem somente chaves de roteamento.
-- Folhas encadeadas facilitam percursos sequenciais.
-
-## Complexidade
-
-| Operação | Complexidade |
-|----------|-------------|
-| Busca    | O(log n)    |
-| Inserção | O(log n)    |
-| Exclusão | O(log n)    |
-| Espaço   | O(n)        |
+## Conclusion
+This project provides a solid understanding of B and B+ trees and their applications, offering insights into their implementation and advantages in database systems.
