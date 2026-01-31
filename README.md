@@ -1,49 +1,76 @@
-# Project Documentation
+# 🌳 Árvore B e B+ - Estruturas de Dados para Bancos de Dados
 
-## Badges
-![License](https://img.shields.io/badge/license-MIT-brightgreen)
-![CI](https://img.shields.io/badge/ci-passing-brightgreen)
+<div align="center">
 
-## Introduction
-This project implements B and B+ trees, which are specialized data structures commonly used in databases and file systems.
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
+![Database](https://img.shields.io/badge/Database-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 
-## B and B+ Trees
-### B Tree
-A B Tree is a balanced tree data structure that maintains sorted data and allows searches, sequential access, insertions, and deletions in logarithmic time.
+**Implementações Completas de Árvore B e B+ com Interface Web**
 
-### B+ Tree
-A B+ Tree is an extension of a B Tree, in which all values are found in the leaf nodes. It is optimized for systems that read and write large blocks of data.
+[Sobre](#-sobre) • [Por que B+ Trees?](#-por-que-b-trees) • [Como Executar](#-como-executar) • [Aplicações](#-aplicações-reais)
 
-## Applications in Databases
-- **MySQL**: Uses B+ Trees for indexing data.
-- **PostgreSQL**: Utilizes B Trees and B+ Trees for various indexing strategies.
+</div>
 
-## Complexity Analysis
-Both B and B+ trees have a logarithmic time complexity for search operations, which is ideal for large datasets.
+---
 
-## How to Execute Instructions
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Luan-Diniz02/Projeto_Arvore_B_Bplus_Bestrela.git
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd Projeto_Arvore_B_Bplus_Bestrela
-   ```
-3. Compile and run the project according to the instructions in the **docs** folder.
+## 📖 Sobre
 
-## Project Structure
-- **src/**: Contains the source code.
-- **docs/**: Contains documentation and instructions.
-- **tests/**: Contains test cases for various functionalities.
+Este projeto implementa as estruturas de dados **Árvore B** e **Árvore B+**, fundamentais para sistemas de gerenciamento de bancos de dados (SGBD) como **MySQL**, **PostgreSQL**, **MongoDB** e **SQLite**.
 
-## Comparison between B and B+ Trees
-| Feature             | B Tree      | B+ Tree      |
-|---------------------|-------------|--------------|
-| Leaf Nodes          | Data & Pointers | Only Pointers to Data  |
-| Search Complexity    | O(log n)    | O(log n)      |
-| Space Utilization    | Less efficient | More efficient |
-| Range Queries        | Possible     | More efficient in range queries |
+### 🎯 Objetivo
 
-## Conclusion
-This project provides a solid understanding of B and B+ trees and their applications, offering insights into their implementation and advantages in database systems.
+Demonstrar como estruturas de dados avançadas são aplicadas em sistemas reais, especialmente:
+- **Indexação de bancos de dados**
+- **Sistemas de arquivos** (NTFS, ext4, Btrfs)
+- **Otimização de buscas** em grandes volumes de dados
+
+---
+
+## 🌟 Por que B+ Trees?
+
+### 🗄️ **Base dos Bancos de Dados Modernos**
+
+| SGBD | Uso de B+ Tree |
+|------|----------------|
+| **MySQL/InnoDB** | Índices primários e secundários |
+| **PostgreSQL** | Índices B-tree (padrão) |
+| **MongoDB** | Índices WiredTiger |
+| **SQLite** | Índices e tabelas |
+
+### 💪 **Vantagens das B+ Trees**
+
+✅ **Otimizada para Disco** - Reduz operações de I/O  
+✅ **Buscas Eficientes** - O(log n) garantido  
+✅ **Range Queries** - Varredura sequencial nas folhas  
+✅ **Balanceamento Automático** - Mantém altura equilibrada  
+
+---
+
+## ✨ Funcionalidades
+
+### 🌲 **Árvore B**
+- ✅ Inserção com split automático
+- ✅ Busca eficiente O(log n)
+- ✅ Remoção com merge e redistribuição
+- ✅ Balanceamento automático
+
+### 🌲➕ **Árvore B+**
+- ✅ Todas as chaves nas folhas
+- ✅ Nós internos como roteadores
+- ✅ Folhas encadeadas (linked list)
+- ✅ Range queries otimizadas
+
+---
+
+## 🚀 Como Executar
+
+### Instalação
+
+```bash
+# Clonar repositório
+git clone https://github.com/Luan-Diniz02/Projeto_Arvore_B_Bplus_Bestrela.git
+cd Projeto_Arvore_B_Bplus_Bestrela
+
+# Instalar dependências
+pip install flask
